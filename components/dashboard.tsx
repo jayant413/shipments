@@ -49,10 +49,10 @@ export function Dashboard({ onLogout }: DashboardProps) {
       const searchLower = filters.search.toLowerCase()
       filtered = filtered.filter(
         (shipment) =>
-          shipment.shipment_id.toLowerCase().includes(searchLower) ||
-          shipment.order_id.toLowerCase().includes(searchLower) ||
-          shipment.item_id.toLowerCase().includes(searchLower) ||
-          shipment.sku_id.toLowerCase().includes(searchLower) ||
+          shipment.shipmentId.toLowerCase().includes(searchLower) ||
+          shipment.orderId.toLowerCase().includes(searchLower) ||
+          shipment.itemId.toLowerCase().includes(searchLower) ||
+          shipment.skuId.toLowerCase().includes(searchLower) ||
           (shipment.reason && shipment.reason.toLowerCase().includes(searchLower)),
       )
     }
@@ -65,14 +65,14 @@ export function Dashboard({ onLogout }: DashboardProps) {
     // Apply photos received filter
     if (filters.photosReceived && filters.photosReceived !== "all") {
       const photosFilter = filters.photosReceived === "yes"
-      filtered = filtered.filter((shipment) => shipment.photos_received === photosFilter)
+      filtered = filtered.filter((shipment) => shipment.photosReceived === photosFilter)
     }
 
     // Apply date range filter
     if (filters.dateRange?.from || filters.dateRange?.to) {
       filtered = filtered.filter((shipment) => {
-        if (!shipment.receiving_date) return false
-        const shipmentDate = new Date(shipment.receiving_date)
+        if (!shipment.receivingDate) return false
+        const shipmentDate = new Date(shipment.receivingDate)
 
         if (filters.dateRange?.from && shipmentDate < filters.dateRange.from) return false
         if (filters.dateRange?.to && shipmentDate > filters.dateRange.to) return false
@@ -190,14 +190,14 @@ export function Dashboard({ onLogout }: DashboardProps) {
   const handleExcelUpload = async (importedShipments: Shipment[]) => {
     try {
       const formDataArray: ShipmentFormData[] = importedShipments.map((shipment) => ({
-        shipmentId: shipment.shipment_id,
-        orderId: shipment.order_id,
-        itemId: shipment.item_id,
-        skuId: shipment.sku_id,
+        shipmentId: shipment.shipmentId,
+        orderId: shipment.orderId,
+        itemId: shipment.itemId,
+        skuId: shipment.skuId,
         reason: shipment.reason,
         aging: shipment.aging,
-        receivingDate: shipment.receiving_date ? new Date(shipment.receiving_date).toISOString().split("T")[0] : "",
-        photosReceived: shipment.photos_received,
+        receivingDate: shipment.receivingDate ? new Date(shipment.receivingDate).toISOString().split("T")[0] : "",
+        photosReceived: shipment.photosReceived,
         status: shipment.status,
         checked: shipment.checked,
       }))
@@ -248,17 +248,18 @@ export function Dashboard({ onLogout }: DashboardProps) {
               <p className="text-sm sm:text-base text-muted-foreground">Track and manage your shipments efficiently</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              <div className="lg:col-span-1">
+            <div className="space-y-6">
+              <div className="w-full">
                 <FiltersPanel
                   filters={filters}
                   onFiltersChange={handleFiltersChange}
                   onClearFilters={handleClearFilters}
                 />
               </div>
-              <div className="lg:col-span-3">
+              <div className="w-full">
                 <ShipmentTable
                   shipments={filteredShipments}
+                  searchTerm={filters.search}
                   selectedShipments={selectedShipments}
                   onSelectShipment={handleSelectShipment}
                   onSelectAll={handleSelectAll}
@@ -297,7 +298,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
           setDeletingShipmentId(undefined)
         }}
         onConfirm={handleDeleteShipment}
-        shipmentId={shipments.find((s) => s.id === deletingShipmentId)?.shipment_id}
+        shipmentId={shipments.find((s) => s.id === deletingShipmentId)?.shipmentId}
         isLoading={isLoading}
       />
 

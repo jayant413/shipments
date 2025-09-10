@@ -134,8 +134,14 @@ export function ExcelUploadModal({ isOpen, onClose, onUploadComplete }: ExcelUpl
     resetState()
   }
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      handleClose()
+    }
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Import Shipments from Excel</DialogTitle>

@@ -13,8 +13,14 @@ interface ShipmentModalProps {
 }
 
 export function ShipmentModal({ isOpen, onClose, shipment, onSubmit, isLoading }: ShipmentModalProps) {
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      onClose()
+    }
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{shipment ? "Edit Shipment" : "Add New Shipment"}</DialogTitle>
