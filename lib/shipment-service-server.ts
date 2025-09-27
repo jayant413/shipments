@@ -62,7 +62,7 @@ export class ShipmentServiceServer {
       const data = await collection.find({ _id: { $in: insertedIds } }).toArray()
       return data.map(this.transformFromDatabase)
     } catch (error) {
-      console.error("Error bulk creating shipments:", error)
+      console.error("Error bulk creating shipments", error)
       throw new Error("Failed to create shipments")
     }
   }
