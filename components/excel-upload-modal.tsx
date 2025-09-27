@@ -70,6 +70,7 @@ export function ExcelUploadModal({ isOpen, onClose, onUploadComplete }: ExcelUpl
       })
 
       const result = await parseExcelFile(file)
+      console.log(result)
 
       if (result.success && result.data) {
         setUploadState({
@@ -171,12 +172,20 @@ export function ExcelUploadModal({ isOpen, onClose, onUploadComplete }: ExcelUpl
                 <p className="text-lg font-medium">Drop your Excel file here</p>
                 <p className="text-sm text-muted-foreground">or click to browse</p>
               </div>
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                onChange={handleFileInput}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
+              <div className="mt-4">
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={handleFileInput}
+                  className="sr-only"
+                  id="file-upload"
+                />
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <Button variant="outline" type="button" asChild>
+                    <span>Browse Files</span>
+                  </Button>
+                </label>
+              </div>
             </div>
           )}
 

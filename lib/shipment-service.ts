@@ -8,9 +8,7 @@ export class ShipmentService {
       if (!response.ok) {
         throw new Error(result.error || 'Failed to fetch shipments')
       }
-      console.log('Raw API response:', result.data)
       const transformed = result.data.map(this.transformFromDatabase)
-      console.log('Transformed data:', transformed)
       return transformed
     } catch (error) {
       console.error("Error fetching shipments:", error)

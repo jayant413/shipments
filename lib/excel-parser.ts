@@ -62,9 +62,11 @@ export async function parseExcelFile(file: File): Promise<ExcelUploadResult> {
       }
     })
 
+    console.log(errors)
+
     return {
-      success: errors.length === 0,
-      data: errors.length === 0 ? shipments : undefined,
+      success: errors.length <= 50,
+      data: errors.length <= 50 ? shipments : undefined,
       errors: errors.length > 0 ? errors : undefined,
     }
   } catch (error) {
