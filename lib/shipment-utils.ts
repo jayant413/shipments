@@ -1,4 +1,4 @@
-import type { Shipment, ShipmentStatus } from "../types"
+import type { Shipment, ShipmentStatus } from "./types"
 
 export function getStatusColor(status: ShipmentStatus): string {
   switch (status) {

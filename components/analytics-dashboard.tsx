@@ -62,7 +62,7 @@ export function AnalyticsDashboard({ onLogout }: AnalyticsDashboardProps) {
 
   const photosData = shipments.reduce(
     (acc, shipment) => {
-      const status = shipment.photos_received ? "Received" : "Pending"
+      const status = shipment.photosReceived ? "Received" : "Pending"
       acc[status] = (acc[status] || 0) + 1
       return acc
     },
@@ -107,7 +107,14 @@ export function AnalyticsDashboard({ onLogout }: AnalyticsDashboardProps) {
     <div className="flex h-screen bg-background">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header onLogout={onLogout} />
+        <Header 
+          onLogout={onLogout}
+          onSearch={() => {}}
+          onAddShipment={() => {}}
+          onImportExcel={() => {}}
+          onExportAll={() => {}}
+          onExportFiltered={() => {}}
+        />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
@@ -138,7 +145,7 @@ export function AnalyticsDashboard({ onLogout }: AnalyticsDashboardProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-600">
-                    {shipments.filter((s) => s.photos_received).length}
+                    {shipments.filter((s) => s.photosReceived).length}
                   </div>
                 </CardContent>
               </Card>

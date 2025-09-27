@@ -1,96 +1,127 @@
-import { createClient } from "@/lib/client"
 import type { Shipment, ShipmentFormData } from "@/lib/types"
 
 export class ShipmentService {
-  private supabase = createClient()
-
   async getAllShipments(): Promise<Shipment[]> {
-    const { data, error } = await this.supabase.from("shipments").select("*").order("created_at", { ascending: false })
-
-    if (error) {
+    try {
+      const response = await fetch('/api/shipments')
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to fetch shipments')
+      }
+      console.log('Raw API response:', result.data)
+      const transformed = result.data.map(this.transformFromDatabase)
+      console.log('Transformed data:', transformed)
+      return transformed
+    } catch (error) {
       console.error("Error fetching shipments:", error)
       throw new Error("Failed to fetch shipments")
     }
-
-    return data.map(this.transformFromDatabase)
   }
 
   async createShipment(shipmentData: ShipmentFormData): Promise<Shipment> {
-    const dbData = this.transformToDatabase(shipmentData)
-
-    const { data, error } = await this.supabase.from("shipments").insert([dbData]).select().single()
-
-    if (error) {
+    try {
+      const response = await fetch('/api/shipments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(shipmentData)
+      })
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create shipment')
+      }
+      return this.transformFromDatabase(result.data)
+    } catch (error) {
       console.error("Error creating shipment:", error)
       throw new Error("Failed to create shipment")
     }
-
-    return this.transformFromDatabase(data)
   }
 
   async updateShipment(id: string, shipmentData: ShipmentFormData): Promise<Shipment> {
-    const dbData = this.transformToDatabase(shipmentData)
-
-    const { data, error } = await this.supabase.from("shipments").update(dbData).eq("id", id).select().single()
-
-    if (error) {
+    try {
+      const response = await fetch(`/api/shipments/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(shipmentData)
+      })
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update shipment')
+      }
+      return this.transformFromDatabase(result.data)
+    } catch (error) {
       console.error("Error updating shipment:", error)
       throw new Error("Failed to update shipment")
     }
-
-    return this.transformFromDatabase(data)
   }
 
   async deleteShipment(id: string): Promise<void> {
-    const { error } = await this.supabase.from("shipments").delete().eq("id", id)
-
-    if (error) {
+    try {
+      const response = await fetch(`/api/shipments/${id}`, {
+        method: 'DELETE'
+      })
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to delete shipment')
+      }
+    } catch (error) {
       console.error("Error deleting shipment:", error)
       throw new Error("Failed to delete shipment")
     }
   }
 
   async bulkCreateShipments(shipmentsData: ShipmentFormData[]): Promise<Shipment[]> {
-    const dbData = shipmentsData.map(this.transformToDatabase)
-
-    const { data, error } = await this.supabase.from("shipments").insert(dbData).select()
-
-    if (error) {
+    try {
+      const response = await fetch('/api/shipments/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shipments: shipmentsData })
+      })
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create shipments')
+      }
+      return result.data.map(this.transformFromDatabase)
+    } catch (error) {
       console.error("Error bulk creating shipments:", error)
       throw new Error("Failed to create shipments")
     }
-
-    return data.map(this.transformFromDatabase)
   }
 
   private transformFromDatabase(dbShipment: any): Shipment {
+    // Safely handle date conversion
+    let receivingDate: Date
+    if (dbShipment.receivingDate instanceof Date) {
+      receivingDate = dbShipment.receivingDate
+    } else if (dbShipment.receiving_date instanceof Date) {
+      receivingDate = dbShipment.receiving_date
+    } else if (dbShipment.receivingDate) {
+      receivingDate = new Date(dbShipment.receivingDate)
+      // If the date is invalid, use current date
+      if (isNaN(receivingDate.getTime())) {
+        receivingDate = new Date()
+      }
+    } else if (dbShipment.receiving_date) {
+      receivingDate = new Date(dbShipment.receiving_date)
+      // If the date is invalid, use current date
+      if (isNaN(receivingDate.getTime())) {
+        receivingDate = new Date()
+      }
+    } else {
+      receivingDate = new Date()
+    }
+
     return {
-      id: dbShipment.id,
-      shipmentId: dbShipment.shipment_id,
-      orderId: dbShipment.order_id,
-      itemId: dbShipment.item_id,
-      skuId: dbShipment.sku_id,
+      id: dbShipment._id?.toString() || dbShipment.id,
+      shipmentId: dbShipment.shipmentId || dbShipment.shipment_id,
+      orderId: dbShipment.orderId || dbShipment.order_id,
+      itemId: dbShipment.itemId || dbShipment.item_id,
+      skuId: dbShipment.skuId || dbShipment.sku_id,
       reason: dbShipment.reason || "",
       aging: dbShipment.aging || 0,
-      receivingDate: new Date(dbShipment.receiving_date),
-      photosReceived: dbShipment.photos_received || false,
+      receivingDate,
+      photosReceived: dbShipment.photosReceived || dbShipment.photos_received || false,
       status: dbShipment.status || "pending",
       checked: dbShipment.checked || false,
-    }
-  }
-
-  private transformToDatabase(shipment: ShipmentFormData): any {
-    return {
-      shipment_id: shipment.shipmentId,
-      order_id: shipment.orderId,
-      item_id: shipment.itemId,
-      sku_id: shipment.skuId,
-      reason: shipment.reason,
-      aging: shipment.aging,
-      receiving_date: shipment.receivingDate,
-      photos_received: shipment.photosReceived,
-      status: shipment.status,
-      checked: shipment.checked || false,
     }
   }
 }

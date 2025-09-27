@@ -27,7 +27,7 @@ export function DeleteConfirmationModal({
   isLoading,
 }: DeleteConfirmationModalProps) {
   const handleOpenChange = (open: boolean) => {
-    if (!open && !isLoading) {
+    if (!open) {
       onClose()
     }
   }

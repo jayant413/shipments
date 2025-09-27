@@ -16,24 +16,20 @@ export function exportToExcel(data: Shipment[], options: ExportOptions = {}): vo
 
   // Transform data for export
   const exportData = data.map((shipment) => ({
-    "Shipment ID": shipment.shipment_id,
-    "Order ID": shipment.order_id,
-    "Item ID": shipment.item_id,
-    "SKU ID": shipment.sku_id,
+    "Shipment ID": shipment.shipmentId,
+    "Order ID": shipment.orderId,
+    "Item ID": shipment.itemId,
+    "SKU ID": shipment.skuId,
     Reason: shipment.reason || "",
     "Aging (Days)": shipment.aging,
-    "Receiving Date": shipment.receiving_date
+    "Receiving Date": shipment.receivingDate
       ? dateFormat === "readable"
-        ? new Date(shipment.receiving_date).toLocaleDateString()
-        : shipment.receiving_date
+        ? new Date(shipment.receivingDate).toLocaleDateString()
+        : shipment.receivingDate
       : "",
-    "Photos Received": shipment.photos_received ? "Yes" : "No",
+    "Photos Received": shipment.photosReceived ? "Yes" : "No",
     Status: shipment.status.charAt(0).toUpperCase() + shipment.status.slice(1),
     Checked: shipment.checked ? "Yes" : "No",
-    "Created Date":
-      dateFormat === "readable" ? new Date(shipment.created_at).toLocaleDateString() : shipment.created_at,
-    "Last Updated":
-      dateFormat === "readable" ? new Date(shipment.updated_at).toLocaleDateString() : shipment.updated_at,
   }))
 
   // Create workbook and worksheet
@@ -98,10 +94,10 @@ export function exportFilteredData(
     const searchLower = filters.search.toLowerCase()
     filteredData = filteredData.filter(
       (shipment) =>
-        shipment.shipment_id.toLowerCase().includes(searchLower) ||
-        shipment.order_id.toLowerCase().includes(searchLower) ||
-        shipment.item_id.toLowerCase().includes(searchLower) ||
-        shipment.sku_id.toLowerCase().includes(searchLower) ||
+        shipment.shipmentId.toLowerCase().includes(searchLower) ||
+        shipment.orderId.toLowerCase().includes(searchLower) ||
+        shipment.itemId.toLowerCase().includes(searchLower) ||
+        shipment.skuId.toLowerCase().includes(searchLower) ||
         (shipment.reason && shipment.reason.toLowerCase().includes(searchLower)),
     )
   }
@@ -112,13 +108,13 @@ export function exportFilteredData(
 
   if (filters.photosReceived && filters.photosReceived !== "all") {
     const photosFilter = filters.photosReceived === "yes"
-    filteredData = filteredData.filter((shipment) => shipment.photos_received === photosFilter)
+    filteredData = filteredData.filter((shipment) => shipment.photosReceived === photosFilter)
   }
 
   if (filters.dateRange?.from || filters.dateRange?.to) {
     filteredData = filteredData.filter((shipment) => {
-      if (!shipment.receiving_date) return false
-      const shipmentDate = new Date(shipment.receiving_date)
+      if (!shipment.receivingDate) return false
+      const shipmentDate = new Date(shipment.receivingDate)
 
       if (filters.dateRange?.from && shipmentDate < filters.dateRange.from) return false
       if (filters.dateRange?.to && shipmentDate > filters.dateRange.to) return false

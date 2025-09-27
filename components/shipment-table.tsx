@@ -95,11 +95,11 @@ export function ShipmentTable({
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onEditShipment(shipment)}>
+                        <DropdownMenuItem onClick={() => setTimeout(() => onEditShipment(shipment), 0)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => onDeleteShipment(shipment.id)}>
+                        <DropdownMenuItem className="text-destructive" onClick={() => setTimeout(() => onDeleteShipment(shipment.id), 0)}>
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete
                         </DropdownMenuItem>
@@ -241,11 +241,11 @@ export function ShipmentTable({
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onEditShipment(shipment)}>
+                        <DropdownMenuItem onClick={() => setTimeout(() => onEditShipment(shipment), 0)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => onDeleteShipment(shipment.id)}>
+                        <DropdownMenuItem className="text-destructive" onClick={() => setTimeout(() => onDeleteShipment(shipment.id), 0)}>
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete
                         </DropdownMenuItem>

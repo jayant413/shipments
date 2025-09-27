@@ -22,6 +22,7 @@ export interface ShipmentFormData {
   receivingDate: string
   photosReceived: boolean
   status: "pending" | "in-transit" | "delivered" | "delayed" | "cancelled"
+  checked?: boolean
 }
 
 export type ShipmentStatus = "pending" | "in-transit" | "delivered" | "delayed" | "cancelled"

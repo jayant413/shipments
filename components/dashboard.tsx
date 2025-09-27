@@ -41,6 +41,30 @@ export function Dashboard({ onLogout }: DashboardProps) {
     loadShipments()
   }, [])
 
+  // Cleanup function to reset modal states
+  useEffect(() => {
+    return () => {
+      setIsEditModalOpen(false)
+      setIsDeleteModalOpen(false)
+      setEditingShipment(undefined)
+      setDeletingShipmentId(undefined)
+    }
+  }, [])
+
+  // Ensure page remains interactive after modal operations
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      // Reset any stuck states if user clicks outside modal areas
+      if (!isEditModalOpen && !isDeleteModalOpen) {
+        setEditingShipment(undefined)
+        setDeletingShipmentId(undefined)
+      }
+    }
+
+    document.addEventListener('click', handleGlobalClick)
+    return () => document.removeEventListener('click', handleGlobalClick)
+  }, [isEditModalOpen, isDeleteModalOpen])
+
   const filteredShipments = useMemo(() => {
     let filtered = shipments
 
@@ -162,12 +186,12 @@ export function Dashboard({ onLogout }: DashboardProps) {
     try {
       const updatedShipment = await shipmentService.updateShipment(editingShipment.id, data)
       setShipments((prev) => prev.map((s) => (s.id === editingShipment.id ? updatedShipment : s)))
-      setIsEditModalOpen(false)
-      setEditingShipment(undefined)
     } catch (error) {
       console.error("Error updating shipment:", error)
     } finally {
       setIsLoading(false)
+      setIsEditModalOpen(false)
+      setEditingShipment(undefined)
     }
   }
 
@@ -178,12 +202,12 @@ export function Dashboard({ onLogout }: DashboardProps) {
     try {
       await shipmentService.deleteShipment(deletingShipmentId)
       setShipments((prev) => prev.filter((s) => s.id !== deletingShipmentId))
-      setIsDeleteModalOpen(false)
-      setDeletingShipmentId(undefined)
     } catch (error) {
       console.error("Error deleting shipment:", error)
     } finally {
       setIsLoading(false)
+      setIsDeleteModalOpen(false)
+      setDeletingShipmentId(undefined)
     }
   }
 
@@ -214,10 +238,26 @@ export function Dashboard({ onLogout }: DashboardProps) {
     setIsEditModalOpen(true)
   }
 
+  const closeEditModal = () => {
+    setIsEditModalOpen(false)
+    // Delay clearing the editing shipment to allow modal to close properly
+    setTimeout(() => {
+      setEditingShipment(undefined)
+    }, 100)
+  }
+
   const openDeleteModal = (shipmentId: string) => {
     console.log("[v0] Opening delete modal for shipment:", shipmentId)
     setDeletingShipmentId(shipmentId)
     setIsDeleteModalOpen(true)
+  }
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false)
+    // Delay clearing the deleting shipment ID to allow modal to close properly
+    setTimeout(() => {
+      setDeletingShipmentId(undefined)
+    }, 100)
   }
 
   if (isInitialLoading) {
@@ -281,10 +321,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
 
       <ShipmentModal
         isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false)
-          setEditingShipment(undefined)
-        }}
+        onClose={closeEditModal}
         shipment={editingShipment}
         onSubmit={handleEditShipment}
         isLoading={isLoading}
@@ -292,11 +329,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
 
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
-        onClose={() => {
-          console.log("[v0] Closing delete modal")
-          setIsDeleteModalOpen(false)
-          setDeletingShipmentId(undefined)
-        }}
+        onClose={closeDeleteModal}
         onConfirm={handleDeleteShipment}
         shipmentId={shipments.find((s) => s.id === deletingShipmentId)?.shipmentId}
         isLoading={isLoading}

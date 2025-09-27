@@ -32,21 +32,31 @@ const statusOptions: { value: ShipmentStatus; label: string }[] = [
 ]
 
 export function ShipmentForm({ shipment, onSubmit, onCancel, isLoading }: ShipmentFormProps) {
+  // Demo data for initial form state
   const [formData, setFormData] = useState<ShipmentFormData>({
-    shipmentId: "",
-    orderId: "",
-    itemId: "",
-    skuId: "",
-    reason: "",
-    aging: 0,
-    receivingDate: "",
-    photosReceived: false,
+    shipmentId: "SHP-001",
+    orderId: "ORD-123",
+    itemId: "ITEM-456",
+    skuId: "SKU-789",
+    reason: "Damaged packaging",
+    aging: 2,
+    receivingDate: format(new Date(), "yyyy-MM-dd"),
+    photosReceived: true,
     status: "pending",
   })
   const [date, setDate] = useState<Date>()
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
 
   useEffect(() => {
     if (shipment) {
+      // Safely handle date formatting
+      const receivingDate = shipment.receivingDate instanceof Date 
+        ? shipment.receivingDate 
+        : new Date(shipment.receivingDate)
+      
+      // Check if the date is valid
+      const isValidDate = !isNaN(receivingDate.getTime())
+      
       setFormData({
         shipmentId: shipment.shipmentId,
         orderId: shipment.orderId,
@@ -54,11 +64,11 @@ export function ShipmentForm({ shipment, onSubmit, onCancel, isLoading }: Shipme
         skuId: shipment.skuId,
         reason: shipment.reason,
         aging: shipment.aging,
-        receivingDate: format(shipment.receivingDate, "yyyy-MM-dd"),
+        receivingDate: isValidDate ? format(receivingDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
         photosReceived: shipment.photosReceived,
         status: shipment.status,
       })
-      setDate(shipment.receivingDate)
+      setDate(isValidDate ? receivingDate : new Date())
     }
   }, [shipment])
 
@@ -68,12 +78,13 @@ export function ShipmentForm({ shipment, onSubmit, onCancel, isLoading }: Shipme
   }
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
-    if (selectedDate) {
+    if (selectedDate && !isNaN(selectedDate.getTime())) {
       setDate(selectedDate)
       setFormData((prev) => ({
         ...prev,
         receivingDate: format(selectedDate, "yyyy-MM-dd"),
       }))
+      setIsDatePickerOpen(false)
     }
   }
 
@@ -138,14 +149,14 @@ export function ShipmentForm({ shipment, onSubmit, onCancel, isLoading }: Shipme
 
         <div className="space-y-2">
           <Label>Receiving Date *</Label>
-          <Popover>
+          <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
             <PopoverTrigger asChild>
               <Button
-                variant="outline"
+                variant="outline" id="date"
                 className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, "PPP") : "Pick a date"}
+                {date && !isNaN(date.getTime()) ? format(date, "PPP") : "Pick a date"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">

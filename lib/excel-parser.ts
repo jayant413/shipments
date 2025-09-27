@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx"
-import type { Shipment, ExcelUploadResult } from "../types"
+import type { Shipment, ExcelUploadResult } from "./types"
 
 export async function parseExcelFile(file: File): Promise<ExcelUploadResult> {
   try {
@@ -106,16 +106,18 @@ function parsePhotosReceived(value: any): boolean {
   return parseBoolean(value)
 }
 
-function parseExcelStatus(value: any): "pending" | "processing" | "completed" | "cancelled" {
+function parseExcelStatus(value: any): "pending" | "in-transit" | "delivered" | "delayed" | "cancelled" {
   if (!value) return "pending"
 
-  const statusMap: Record<string, "pending" | "processing" | "completed" | "cancelled"> = {
-    "open in transit": "processing",
+  const statusMap: Record<string, "pending" | "in-transit" | "delivered" | "delayed" | "cancelled"> = {
+    "open in transit": "in-transit",
     open: "pending",
-    "in transit": "processing",
-    processing: "processing",
-    completed: "completed",
-    closed: "completed",
+    "in transit": "in-transit",
+    processing: "in-transit",
+    completed: "delivered",
+    closed: "delivered",
+    delivered: "delivered",
+    delayed: "delayed",
     cancelled: "cancelled",
     canceled: "cancelled",
     pending: "pending",
