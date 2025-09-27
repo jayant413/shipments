@@ -34,14 +34,14 @@ const statusOptions: { value: ShipmentStatus; label: string }[] = [
 export function ShipmentForm({ shipment, onSubmit, onCancel, isLoading }: ShipmentFormProps) {
   // Demo data for initial form state
   const [formData, setFormData] = useState<ShipmentFormData>({
-    shipmentId: "SHP-001",
-    orderId: "ORD-123",
-    itemId: "ITEM-456",
-    skuId: "SKU-789",
-    reason: "Damaged packaging",
-    aging: 2,
-    receivingDate: format(new Date(), "yyyy-MM-dd"),
-    photosReceived: true,
+    shipmentId: "",
+    orderId: "",
+    itemId: "",
+    skuId: "",
+    reason: "",
+    aging: 0,
+    receivingDate: "",
+    photosReceived: false,
     status: "pending",
   })
   const [date, setDate] = useState<Date>()
